@@ -1,7 +1,7 @@
 async function getRecipe() {
   const ingredients = document.getElementById("ingredients").value;
 
-  const response = await fetch("http://localhost:5000/api/generate", {
+  const response = await fetch("http://localhost:5000/api/recipe", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ ingredients })
