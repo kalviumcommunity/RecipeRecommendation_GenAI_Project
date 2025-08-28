@@ -15,6 +15,8 @@ app.post("/api/recipe", (req, res) => {
   res.json({ message: "Recipe received successfully!", ingredients });
 });
 
+
+
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
 });
