@@ -24,6 +24,7 @@ app.use(express.json());
 app.use(express.static(path.join(__dirname, 'frontend')));
 
 // API endpoint
+// systemand user prompting
 app.post('/api/recipe', async (req, res) => {
   const { ingredients } = req.body;
 
@@ -74,6 +75,8 @@ app.post('/api/zero-shot', async (req, res) => {
   }
 
   // Zero-Shot: Only instructions, no examples
+  // user prompt example
+  // Suggest quick Indian vegetarian dinner recipes.
   const zeroShotPrompt = `
 You are a master chef.
 Task: Create a complete recipe using ONLY these ingredients: ${ingredients}.
@@ -98,6 +101,60 @@ Output the recipe in this format:
     res.json({ recipe: response.text });
   } catch (error) {
     console.error('Error generating zero-shot recipe:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+
+// One-Shot Prompting
+app.post('/api/one-shot', async (req, res) => {
+  const { ingredients } = req.body;
+
+  if (!ingredients) {
+    return res.status(400).json({ error: 'Ingredients are required' });
+  }
+
+//  user prompt example
+//  I have chicken, garlic, and onion. Suggest a recipes.
+
+  const example = `
+Example:
+Ingredients: Tomato, Onion, Salt, Pepper
+Recipe:
+1. Recipe Name: Simple Tomato-Onion Salad
+2. Ingredients:
+   - 1 Tomato, chopped
+   - 1 Onion, sliced
+   - 1/2 tsp Salt
+   - 1/4 tsp Pepper
+3. Step-by-step Instructions:
+   - Mix tomato and onion in a bowl.
+   - Sprinkle salt and pepper.
+   - Toss well and serve fresh.
+4. Prep Time: 5 mins
+5. Cook Time: 0 mins
+6. Servings: 2
+7. Optional Tips: Add lemon juice for extra tang.
+`;
+
+  const oneShotPrompt = `
+You are a world-class chef.
+Task: Given some ingredients, generate a recipe in the same style and structure as the example below.
+
+${example}
+
+Now, using ONLY these ingredients: ${ingredients}, create a recipe.
+`;
+
+  try {
+    const response = await client.models.generateContent({
+      model: 'gemini-2.5-flash',
+      contents: [{ text: oneShotPrompt }],
+    });
+
+    res.json({ recipe: response.text });
+  } catch (error) {
+    console.error('Error generating one-shot recipe:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
