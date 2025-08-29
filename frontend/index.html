@@ -9,11 +9,13 @@
 <body>
   <div class="container">
     <h1>Recipe Recommendation 🍴</h1>
-    <input type="text" id="ingredients" placeholder="Enter ingredients (comma separated)">
+    <input type="text" id="ingredients" placeholder="Enter ingredients or preferences">
     <button onclick="getRecipe()">Get Recipe</button>
     <button onclick="getZeroShotRecipe()">Get Zero-Shot Recipe</button>
     <button onclick="getOneShotRecipe()">Get One-Shot Recipe</button> 
     <button onclick="getMultiShotRecipe()">Get Multi-Shot Recipe</button>
+    <button onclick="getDynamicRecipe()">Get Dynamic Recipe</button>
+
 
 
     <div id="result"></div>
