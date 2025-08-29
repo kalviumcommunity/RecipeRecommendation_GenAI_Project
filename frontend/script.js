@@ -39,3 +39,17 @@ async function getOneShotRecipe() {
   const data = await response.json();
   document.getElementById("result").innerText = data.recipe;
 }
+
+// multi-shot prompting
+async function getMultiShotRecipe() {  
+  const ingredients = document.getElementById("ingredients").value;
+
+  const response = await fetch("http://localhost:5000/api/multi-shot", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ ingredients })
+  });
+
+  const data = await response.json();
+  document.getElementById("result").innerText = data.recipe;
+}
