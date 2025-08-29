@@ -160,6 +160,82 @@ Now, using ONLY these ingredients: ${ingredients}, create a recipe.
 });
 
 
+// Multi-Shot Prompting
+// user prompt example
+// Potato, Carrot, Onion, Bell Pepper, Salt, Oil
+
+app.post('/api/multi-shot', async (req, res) => {
+  const { ingredients } = req.body;
+
+  if (!ingredients) {
+    return res.status(400).json({ error: 'Ingredients are required' });
+  }
+
+  // Multi-shot examples
+  
+  const examples = `
+Example 1:
+Ingredients: Potato, Salt, Oil
+Recipe:
+1. Recipe Name: Crispy Salted Fries
+2. Ingredients:
+   - 2 Potatoes, sliced
+   - 1/2 tsp Salt
+   - 2 tbsp Oil
+3. Step-by-step Instructions:
+   - Heat oil in a pan.
+   - Fry sliced potatoes until golden.
+   - Sprinkle salt and serve hot.
+4. Prep Time: 10 mins
+5. Cook Time: 15 mins
+6. Servings: 2
+7. Optional Tips: Add chili powder for spicy fries.
+
+Example 2:
+Ingredients: Rice, Tomato, Onion, Garlic, Salt
+Recipe:
+1. Recipe Name: Tomato Garlic Rice
+2. Ingredients:
+   - 1 cup Rice
+   - 2 Tomatoes, chopped
+   - 1 Onion, chopped
+   - 2 Garlic cloves, minced
+   - 1 tsp Salt
+3. Step-by-step Instructions:
+   - Cook rice and set aside.
+   - Sauté onion and garlic in oil.
+   - Add tomatoes and salt, cook until soft.
+   - Mix in rice and stir well.
+4. Prep Time: 10 mins
+5. Cook Time: 20 mins
+6. Servings: 3
+7. Optional Tips: Garnish with coriander.
+`;
+
+  const multiShotPrompt = `
+You are a world-class chef.
+Task: Given some ingredients, generate a recipe in the same style and structure as the examples below.
+
+${examples}
+
+Now, using ONLY these ingredients: ${ingredients}, create a recipe.
+`;
+
+  try {
+    const response = await client.models.generateContent({
+      model: 'gemini-2.5-flash',
+      contents: [{ text: multiShotPrompt }],
+    });
+
+    res.json({ recipe: response.text });
+  } catch (error) {
+    console.error('Error generating multi-shot recipe:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+
+
 // Root route fallback
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'frontend', 'index.html'));
