@@ -236,6 +236,8 @@ Now, using ONLY these ingredients: ${ingredients}, create a recipe.
 
 
 
+
+
 // Root route fallback
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'frontend', 'index.html'));
