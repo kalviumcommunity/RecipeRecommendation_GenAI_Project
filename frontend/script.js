@@ -81,3 +81,29 @@ async function getChainOfThoughtRecipe() {
   const data = await response.json();
   document.getElementById("result").innerText = data.recipe;
 }
+
+
+// Run Evaluation
+async function runEvaluation() {
+  const response = await fetch("http://localhost:5000/api/evaluate", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({})
+  });
+
+  const data = await response.json();
+  
+  let output = "<h2>Evaluation Results</h2>";
+  data.evaluationResults.forEach((res, index) => {
+    output += `
+      <div style="margin-bottom: 15px;">
+        <strong>Test Case ${index + 1}:</strong><br>
+        Ingredients: ${res.ingredients}<br>
+        Expected Recipe: ${res.expected}<br>
+        Judge Result: ${res.judge}<br>
+      </div>
+    `;
+  });
+
+  document.getElementById("result").innerHTML = output;
+}
