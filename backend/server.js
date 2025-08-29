@@ -234,6 +234,49 @@ Now, using ONLY these ingredients: ${ingredients}, create a recipe.
   }
 });
 
+// Dynamic Prompting
+// apple,banana, mango,sugar,milk
+app.post('/api/dynamic', async (req, res) => {
+  const { ingredients} = req.body; 
+
+  if (!ingredients) {
+    return res.status(400).json({ error: 'Ingredients are required' });
+  }
+
+  // Dynamic prompt: add user preference dynamically
+  const dynamicPrompt = `
+You are a master chef.
+Task: Create a recipe using ONLY these ingredients: ${ingredients}.
+If the ingredients include any dietary preferences (e.g., vegetarian, vegan, gluten-free), ensure the recipe adheres to those preferences. If no such preferences are indicated, create a general recipe.
+
+Format:
+1. Recipe Name
+2. Ingredients (list with measurements)
+3. Step-by-step Instructions
+4. Prep Time
+5. Cook Time
+6. Servings
+7. Optional Tips / Variations
+
+Constraints:
+- Do NOT use any ingredients not listed above.
+- Follow the user preference if specified.
+`;
+
+  try {
+    const response = await client.models.generateContent({
+      model: 'gemini-2.5-flash',
+      contents: [{ text: dynamicPrompt }],
+    });
+
+    res.json({ recipe: response.text });
+  } catch (error) {
+    console.error('Error generating dynamic recipe:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+
 
 
 
