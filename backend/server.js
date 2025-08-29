@@ -320,6 +320,78 @@ Then provide the final recipe in this format:
 });
 
 
+// Evaluation Dataset and Testing Framework
+// Tomato, Onion, Salt, Pepper
+// Tests a basic salad-style recipe. Matches your “Simple Tomato-Onion Salad” expected output.
+// Potato, Salt, Oil
+// Tests a simple fried dish. Matches “Crispy Salted Fries”.
+// Rice, Tomato, Onion, Garlic, Salt
+// Tests a cooked dish with multiple ingredients. Matches “Tomato Garlic Rice”.
+// Chicken, Garlic, Onion, Pepper
+// Tests a protein-based recipe. Matches “Garlic Chicken Stir-Fry”.
+// Carrot, Peas, Corn, Salt, Oil
+
+// Tests a mixed vegetable recipe. Matches “Simple Veggie Stir-Fry”.
+app.post('/api/evaluate', async (req, res) => {
+  // 5 sample test cases
+  const testCases = [
+    {
+      ingredients: "Tomato, Onion, Salt, Olive Oil",
+      expectedRecipeName: "Simple Tomato-Onion Salad"
+    },
+    {
+      ingredients: "Rice, Garlic, Salt, Oil",
+      expectedRecipeName: "Garlic Rice"
+    },
+    {
+      ingredients: "Potato, Salt, Oil",
+      expectedRecipeName: "Crispy Salted Fries"
+    },
+    {
+      ingredients: "Chicken, Garlic, Onion, Pepper",
+      expectedRecipeName: "Garlic Chicken Stir-Fry"
+    },
+    {
+      ingredients: "Milk, Sugar, Mango",
+      expectedRecipeName: "Mango Milkshake"
+    }
+  ];
+
+  const results = [];
+
+  for (const test of testCases) {
+    const prompt = `
+You are a food expert. Evaluate the AI-generated recipe based on the ingredients: ${test.ingredients}.
+Compare it with the expected recipe name: "${test.expectedRecipeName}".
+Judge whether the recipe follows the instructions, includes only the given ingredients, and matches the expected dish type.
+Answer YES if it is correct, otherwise NO. Also provide a short explanation.
+`;
+
+    try {
+      const response = await client.models.generateContent({
+        model: 'gemini-2.5-flash',
+        contents: [{ text: prompt }],
+      });
+
+      results.push({
+        ingredients: test.ingredients,
+        expected: test.expectedRecipeName,
+        judge: response.text
+      });
+    } catch (error) {
+      console.error("Error evaluating recipe:", error);
+      results.push({
+        ingredients: test.ingredients,
+        expected: test.expectedRecipeName,
+        judge: "Error generating evaluation"
+      });
+    }
+  }
+
+  res.json({ evaluationResults: results });
+});
+
+
 
 
 // Root route fallback
