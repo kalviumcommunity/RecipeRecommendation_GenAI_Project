@@ -236,6 +236,7 @@ Now, using ONLY these ingredients: ${ingredients}, create a recipe.
 
 // Dynamic Prompting
 // apple,banana, mango,sugar,milk
+
 app.post('/api/dynamic', async (req, res) => {
   const { ingredients} = req.body; 
 
@@ -277,6 +278,46 @@ Constraints:
 });
 
 
+// Chain-of-Thought Prompting
+// Chicken, Garlic, Onion, Bell Pepper, Olive Oil, Salt, Black Pepper
+
+app.post('/api/chain-of-thought', async (req, res) => {
+  const { ingredients } = req.body;
+
+  if (!ingredients) {
+    return res.status(400).json({ error: 'Ingredients are required' });
+  }
+
+  // CoT Prompt: AI explains reasoning step by step before giving recipe
+  const cotPrompt = `
+You are a master chef.
+Task: Suggest a recipe using ONLY these ingredients: ${ingredients}.
+Before giving the final recipe, explain your thought process step by step:
+1. How to combine flavors.
+2. Cooking techniques to use.
+3. Any optional variations.
+Then provide the final recipe in this format:
+1. Recipe Name
+2. Ingredients (list with measurements)
+3. Step-by-step Instructions
+4. Prep Time
+5. Cook Time
+6. Servings
+7. Optional Tips / Variations
+`;
+
+  try {
+    const response = await client.models.generateContent({
+      model: 'gemini-2.5-flash',
+      contents: [{ text: cotPrompt }],
+    });
+
+    res.json({ recipe: response.text });
+  } catch (error) {
+    console.error('Error generating chain-of-thought recipe:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
 
 
 
